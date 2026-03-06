@@ -5,6 +5,7 @@ export function middleware(req) {
 
   if (
     pathname.startsWith("/_next") ||
+    pathname.startsWith("/") ||
     pathname === "/favicon.ico"
   ) {
     return NextResponse.next();
