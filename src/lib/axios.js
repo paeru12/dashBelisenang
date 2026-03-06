@@ -12,12 +12,14 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+
     const originalRequest = error.config;
 
     if (!error.response) {
       return Promise.reject(error);
     }
 
+    // skip refresh request
     if (originalRequest.url.includes("/auth/admin/refresh")) {
       return Promise.reject(error);
     }
@@ -33,12 +35,17 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
+
       await api.post("/auth/admin/refresh");
 
       return api(originalRequest);
+
     } catch (refreshError) {
+
       window.dispatchEvent(new Event("auth:logout"));
+
       return Promise.reject(refreshError);
+
     }
   }
 );

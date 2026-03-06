@@ -1,25 +1,38 @@
-// import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-// export function middleware(req) {
-//   const { pathname } = req.nextUrl;
+export function middleware(req) {
+  const token = req.cookies.get("access_token");
 
-//   if (
-//     pathname.startsWith("/_next") ||
-//     pathname.startsWith("/") ||
-//     pathname === "/favicon.ico"
-//   ) {
-//     return NextResponse.next();
-//   }
+  const { pathname } = req.nextUrl;
 
-//   const PUBLIC = ["/login", "/register", "/403"];
+  const publicRoutes = ["/login", "/register"];
 
-//   if (PUBLIC.some((p) => pathname.startsWith(p))) {
-//     return NextResponse.next();
-//   }
+  // allow next internal files
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/favicon")
+  ) {
+    return NextResponse.next();
+  }
 
-//   return NextResponse.next();
-// }
+  // allow public pages
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
 
-// export const config = {
-//   matcher: ["/:path*"],
-// };
+  // protect pages
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    "/dashboard/:path*",
+    "/orders/:path*",
+    "/events/:path*",
+  ],
+};

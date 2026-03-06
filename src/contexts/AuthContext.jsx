@@ -6,6 +6,7 @@ import api from "@/lib/axios";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +26,7 @@ export function AuthProvider({ children }) {
   });
 
   const startTokenWatcher = (exp) => {
+
     if (!exp) return;
 
     if (refreshTimerRef.current) {
@@ -36,18 +38,23 @@ export function AuthProvider({ children }) {
     const refreshDelay = expireTime - Date.now() - 60 * 1000;
 
     if (refreshDelay > 0) {
+
       refreshTimerRef.current = setTimeout(() => {
         fetchMe();
       }, refreshDelay);
+
     }
+
   };
 
   const fetchMe = async () => {
+
     if (isFetchingRef.current) return;
 
     isFetchingRef.current = true;
 
     try {
+
       const res = await api.get("/auth/admin/me");
 
       if (!res.data?.user) {
@@ -62,62 +69,61 @@ export function AuthProvider({ children }) {
       startTokenWatcher(res.data.exp);
 
     } catch (err) {
+
       setUser(null);
+
     } finally {
+
       setLoading(false);
       isFetchingRef.current = false;
+
     }
+
   };
 
+  // initial auth check
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading]);
-  // ==============================
-  // INITIAL LOAD
-  // ==============================
-  useEffect(() => {
+
     fetchMe();
 
-    const onLogout = () => setUser(null);
+    const onLogout = () => {
+      setUser(null);
+    };
 
     window.addEventListener("auth:logout", onLogout);
 
     return () => {
+
       window.removeEventListener("auth:logout", onLogout);
+
       if (refreshTimerRef.current) {
-        clearInterval(refreshTimerRef.current);
+        clearTimeout(refreshTimerRef.current);
       }
+
     };
+
   }, []);
 
-  // ==============================
-  // LOGIN
-  // ==============================
   const login = async (email, password) => {
+
     await api.post("/auth/admin/login", { email, password });
 
-    await fetchMe(); // ambil user + start timer
+    await fetchMe();
 
     return true;
+
   };
 
-  // ==============================
-  // LOGOUT
-  // ==============================
   const logout = async () => {
+
     try {
       await api.post("/auth/admin/logout");
-    } catch { }
+    } catch {}
 
     setUser(null);
 
-    if (refreshTimerRef.current) {
-      clearInterval(refreshTimerRef.current);
-    }
+    window.location.href = "/login";
 
-    window.dispatchEvent(new Event("auth:logout"));
   };
 
   return (
@@ -131,13 +137,20 @@ export function AuthProvider({ children }) {
         refetchMe: fetchMe,
       }}
     >
-      {children}
+      {loading ? null : children}
     </AuthContext.Provider>
   );
+
 }
 
 export function useAuth() {
+
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+
+  if (!ctx) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+
   return ctx;
+
 }
