@@ -66,7 +66,11 @@ export function AuthProvider({ children }) {
     }
   };
 
-
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading]);
   // ==============================
   // INITIAL LOAD
   // ==============================
