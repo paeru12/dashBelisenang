@@ -10,43 +10,25 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  res=>res,
+  async error=>{
 
     const originalRequest = error.config;
 
-    if (!error.response) {
+    if(error.response?.status !== 401){
       return Promise.reject(error);
     }
 
-    // skip refresh request
-    if (originalRequest.url.includes("/auth/admin/refresh")) {
-      return Promise.reject(error);
-    }
-
-    if (error.response.status !== 401) {
-      return Promise.reject(error);
-    }
-
-    if (originalRequest._retry) {
+    if(originalRequest._retry){
       return Promise.reject(error);
     }
 
     originalRequest._retry = true;
 
-    try {
+    await api.post("/auth/admin/refresh");
 
-      await api.post("/auth/admin/refresh");
+    return api(originalRequest);
 
-      return api(originalRequest);
-
-    } catch (refreshError) {
-
-      window.dispatchEvent(new Event("auth:logout"));
-
-      return Promise.reject(refreshError);
-
-    }
   }
 );
 

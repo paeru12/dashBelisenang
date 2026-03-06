@@ -1,156 +1,73 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useState } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const router = useRouter();
 
-  const isFetchingRef = useRef(false);
-  const refreshTimerRef = useRef(null);
+const [user,setUser] = useState(null);
 
-  const normalizeUser = (u) => ({
-    id: u.id,
-    email: u.email,
-    name: u.name,
-    img: u.img,
-    creator_id: u.creator_id,
-    globalRoles: u.globalRoles || [],
-    creatorRoles: u.creatorRoles || [],
-    activeGlobalRole: u.globalRoles?.[0] || null,
-    activeCreatorRole: u.creatorRoles?.[0] || null,
-  });
+const login = async (email,password)=>{
 
-  const startTokenWatcher = (exp) => {
+```
+const res = await api.post("/auth/admin/login",{
+  email,
+  password
+});
 
-    if (!exp) return;
+setUser(res.data.user);
 
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-    }
+router.replace("/dashboard");
+```
 
-    const expireTime = exp * 1000;
+};
 
-    const refreshDelay = expireTime - Date.now() - 60 * 1000;
+const logout = async ()=>{
 
-    if (refreshDelay > 0) {
+```
+try{
+  await api.post("/auth/admin/logout");
+}catch{}
 
-      refreshTimerRef.current = setTimeout(() => {
-        fetchMe();
-      }, refreshDelay);
+setUser(null);
 
-    }
+router.replace("/login");
+```
 
-  };
+};
 
-  const fetchMe = async () => {
+return(
 
-    if (isFetchingRef.current) return;
+```
+<AuthContext.Provider
+  value={{
+    user,
+    isAuthenticated: !!user,
+    login,
+    logout
+  }}
+>
+  {children}
+</AuthContext.Provider>
+```
 
-    isFetchingRef.current = true;
-
-    try {
-
-      const res = await api.get("/auth/admin/me");
-
-      if (!res.data?.user) {
-        setUser(null);
-        return;
-      }
-
-      const normalized = normalizeUser(res.data.user);
-
-      setUser(normalized);
-
-      startTokenWatcher(res.data.exp);
-
-    } catch (err) {
-
-      setUser(null);
-
-    } finally {
-
-      setLoading(false);
-      isFetchingRef.current = false;
-
-    }
-
-  };
-
-  // initial auth check
-  useEffect(() => {
-
-    fetchMe();
-
-    const onLogout = () => {
-      setUser(null);
-    };
-
-    window.addEventListener("auth:logout", onLogout);
-
-    return () => {
-
-      window.removeEventListener("auth:logout", onLogout);
-
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-      }
-
-    };
-
-  }, []);
-
-  const login = async (email, password) => {
-
-    await api.post("/auth/admin/login", { email, password });
-    await new Promise(r => setTimeout(r, 200));
-    await fetchMe();
-
-    return true;
-
-  };
-
-  const logout = async () => {
-
-    try {
-      await api.post("/auth/admin/logout");
-    } catch {}
-
-    setUser(null);
-
-    window.location.href = "/login";
-
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAuthenticated: !!user,
-        login,
-        logout,
-        refetchMe: fetchMe,
-      }}
-    >
-      {loading ? null : children}
-    </AuthContext.Provider>
-  );
+);
 
 }
 
-export function useAuth() {
+export function useAuth(){
 
-  const ctx = useContext(AuthContext);
+const ctx = useContext(AuthContext);
 
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
+if(!ctx){
+throw new Error("useAuth must be used inside AuthProvider");
+}
 
-  return ctx;
+return ctx;
 
 }

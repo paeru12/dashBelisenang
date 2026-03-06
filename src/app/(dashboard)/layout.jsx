@@ -3,26 +3,22 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import CreatorLayoutClient from "@/components/layout/DashboardLayoutClient";
 
-export default function DashboardLayout({ children }) {
-  const { user, loading } = useAuth();
+export default function DashboardLayout({children}){
+
+  const {user} = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && !user) {
+  useEffect(()=>{
+
+    if(!user){
       router.replace("/login");
     }
-  }, [user, loading, router]);
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <span className="text-muted-foreground text-sm">Loading...</span>
-      </div>
-    );
-  }
+  },[user]);
 
-  return <CreatorLayoutClient>{children}</CreatorLayoutClient>;
+  if(!user) return null;
+
+  return children;
 
 }
