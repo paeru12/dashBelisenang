@@ -50,17 +50,20 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.get("/auth/admin/me");
 
+      if (!res.data?.user) {
+        setUser(null);
+        return;
+      }
+
       const normalized = normalizeUser(res.data.user);
+
       setUser(normalized);
 
       startTokenWatcher(res.data.exp);
+
     } catch (err) {
-      if (err.response?.status === 401) {
-        return;
-      }
       setUser(null);
-    }
-    finally {
+    } finally {
       setLoading(false);
       isFetchingRef.current = false;
     }
