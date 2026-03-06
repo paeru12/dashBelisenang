@@ -17,11 +17,8 @@ export default function CreatorLayoutClient({ children }) {
     setSidebarOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
-
-  if (loading || !user) return null;
+  if (loading) return null;
+  if (!user) return null;
 
   const currentPageName =
     pathname.split("/").pop()?.replaceAll("-", " ") || "Dashboard";

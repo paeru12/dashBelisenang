@@ -107,7 +107,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
 
     await api.post("/auth/admin/login", { email, password });
-
+    await new Promise(r => setTimeout(r, 200));
     await fetchMe();
 
     return true;

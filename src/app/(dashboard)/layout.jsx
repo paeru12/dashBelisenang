@@ -4,8 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import CreatorLayoutClient from "@/components/layout/DashboardLayoutClient";
-import { Toaster } from "sonner";
-
 
 export default function DashboardLayout({ children }) {
   const { user, loading } = useAuth();
@@ -16,7 +14,6 @@ export default function DashboardLayout({ children }) {
       router.replace("/login");
     }
   }, [user, loading, router]);
-  <Toaster richColors />
 
   if (loading) {
     return (
