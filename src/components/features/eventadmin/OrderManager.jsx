@@ -23,13 +23,11 @@ import { formatIsoIndo, formatRupiah } from "@/utils/date";
 
 import { confirmAlert, successAlert, errorAlert } from "@/lib/alert";
 
-// ⚡ NEW IMPORTS — shadcn Select
 import {
   Select, SelectTrigger, SelectValue,
   SelectContent, SelectItem
 } from "@/components/ui/selects";
 
-// ⚡ NEW IMPORTS — lucide-react icons
 import {
   ShoppingCart,
   Ticket,
@@ -70,7 +68,7 @@ function toLocalDateOnly(date) {
 export default function OrdersManage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
-  const [eventId, setEventId] = useState("");
+  const [eventId, setEventId] = useState("ALL");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [selectedId, setSelectedId] = useState(null);
@@ -85,7 +83,7 @@ export default function OrdersManage() {
     },
   ]);
 
-  const { startDate, endDate } = dateRange[0];
+  const { startDate, endDate } = dateRange?.[0] ?? {};
 
   const { data: eventList } = useSWR("/events-by-creator", getAllEventByCreator);
 
@@ -114,8 +112,8 @@ export default function OrdersManage() {
       })
   );
 
-  const rows = data?.data?.data ?? [];
-  const meta = data?.data?.meta;
+  const rows = data?.data?.data || [];
+  const meta = data?.data?.meta || {};
 
   // ================================
   // TABLE COLUMNS
@@ -146,11 +144,10 @@ export default function OrdersManage() {
       label: "Status",
       render: (row) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.status === "PAID"
+          className={`px-2 py-1 rounded-full text-xs font-medium ${row.status === "PAID"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
-          }`}
+            }`}
         >
           {row.status}
         </span>
@@ -168,13 +165,12 @@ export default function OrdersManage() {
         <div className="space-y-1">
           <p className="font-medium">{row.payment?.method}</p>
           <p
-            className={`text-xs ${
-              row.payment?.status === "PAID"
+            className={`text-xs ${row.payment?.status === "PAID"
                 ? "text-green-600"
                 : row.payment?.status === "PENDING"
-                ? "text-yellow-600"
-                : "text-red-600"
-            }`}
+                  ? "text-yellow-600"
+                  : "text-red-600"
+              }`}
           >
             {row.payment?.status}
           </p>
@@ -226,9 +222,9 @@ export default function OrdersManage() {
               <SelectValue placeholder="All Events" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Events</SelectItem>
+              <SelectItem value="ALL">All Events</SelectItem>
               {eventList?.map((ev) => (
-                <SelectItem key={ev.id} value={ev.id}>
+                <SelectItem key={ev.id} value={`${ev.id}`}>
                   {ev.name}
                 </SelectItem>
               ))}
@@ -260,7 +256,7 @@ export default function OrdersManage() {
               <SelectItem value="INVOICE">Invoice</SelectItem>
               <SelectItem value="QRIS">QRIS</SelectItem>
               <SelectItem value="VA">Virtual Account</SelectItem>
-              <SelectItem value="EWALLET">E-Wallet</SelectItem>
+              <SelectItem value="EWallet">E-Wallet</SelectItem>
             </SelectContent>
           </Select> */}
 
@@ -331,11 +327,10 @@ function OrderModal({ orderId, onClose }) {
               Invoice #{order.invoice_no}
             </h2>
 
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              order.payment?.status === "PAID"
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${order.payment?.status === "PAID"
                 ? "bg-green-100 text-green-700"
                 : "bg-yellow-100 text-yellow-700"
-            }`}>
+              }`}>
               {order.payment?.status}
             </span>
           </div>
@@ -370,9 +365,8 @@ function OrderModal({ orderId, onClose }) {
             {order.timeline.map((step) => (
               <div key={step.key} className="relative">
                 <div
-                  className={`absolute -left-4 top-1 w-3 h-3 rounded-full ${
-                    step.active ? "bg-blue-600" : "bg-slate-400"
-                  }`}
+                  className={`absolute -left-4 top-1 w-3 h-3 rounded-full ${step.active ? "bg-blue-600" : "bg-slate-400"
+                    }`}
                 />
 
                 <p className={`${step.active ? "font-semibold text-blue-600" : "text-slate-600"}`}>
@@ -417,13 +411,12 @@ function OrderModal({ orderId, onClose }) {
                       <p key={t.ticket_code}>
                         • {t.ticket_code} — {t.owner_name} ({t.owner_email})
                         <span
-                          className={`ml-2 px-2 py-0.5 rounded text-[10px] ${
-                            t.status === "issued"
+                          className={`ml-2 px-2 py-0.5 rounded text-[10px] ${t.status === "issued"
                               ? "bg-yellow-100 text-yellow-700"
                               : t.status === "sent"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
+                                ? "bg-green-100 text-green-700"
+                                : "bg-slate-100 text-slate-600"
+                            }`}
                         >
                           {t.status.toUpperCase()}
                         </span>

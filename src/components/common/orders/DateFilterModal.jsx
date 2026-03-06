@@ -27,7 +27,7 @@ function useIsMobile() {
 export default function DateFilterModal({ open, onClose, onApply }) {
     const isMobile = useIsMobile();
 
-    const [range, setRange] = useState({ from: undefined, to: undefined });
+    const [range, setRange] = useState({ from: null, to: null });
     const [accordionOpen, setAccordionOpen] = useState(false);
 
     const presets = [
@@ -40,12 +40,12 @@ export default function DateFilterModal({ open, onClose, onApply }) {
     ];
 
     function reset() {
-        setRange({ from: undefined, to: undefined });
+        setRange({ from: null, to: null });
     }
 
     function clearFilter() {
         // kosongkan tanggal
-        setRange({ from: undefined, to: undefined });
+        setRange({ from: null, to: null });
 
         // kirim ke parent (supaya filter langsung hilang)
         onApply({
@@ -60,7 +60,7 @@ export default function DateFilterModal({ open, onClose, onApply }) {
     function handleSelect(selected) {
         // Selected bisa null saat clear
         if (!selected) {
-            setRange({ from: undefined, to: undefined });
+            setRange({ from: null, to: null });
             return;
         }
 
@@ -211,22 +211,6 @@ export default function DateFilterModal({ open, onClose, onApply }) {
                 </div>
             </div>
 
-            {/* Custom Styles */}
-            <style jsx global>{`
-        .rdp-day_selected {
-          background: #2563eb !important;
-          color: white !important;
-        }
-        .rdp-range_start,
-        .rdp-range_end,
-        .rdp-range_middle {
-          background: #dbeafe !important;
-        }
-        .rdp-day:hover {
-          background: linear-gradient(135deg, #e5e7eb, #f8fafc) !important;
-          border-radius: 8px;
-        }
-      `}</style>
         </BaseModal>
     );
 }

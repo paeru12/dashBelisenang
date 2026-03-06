@@ -115,6 +115,7 @@ h6 {
 .scrolly::-webkit-scrollbar-thumb {
   background-color: #aab7cf;
 }
+
 .sidebar::-webkit-scrollbar {
   width: 5px;
   height: 8px;
@@ -124,6 +125,7 @@ h6 {
 .sidebar::-webkit-scrollbar-thumb {
   background-color: #aab7cf;
 }
+
 /* Animations */
 @keyframes fade-in {
   from {
@@ -156,4 +158,22 @@ h6 {
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradientShift 10s ease infinite;
+}
+
+/* filter date */
+
+.rdp-day_selected {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+.rdp-range_start,
+.rdp-range_end,
+.rdp-range_middle {
+  background: #dbeafe !important;
+}
+
+.rdp-day:hover {
+  background: linear-gradient(135deg, #e5e7eb, #f8fafc) !important;
+  border-radius: 8px;
 }

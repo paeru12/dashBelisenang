@@ -3,38 +3,26 @@ import axios from "@/lib/axios";
 
 const BASE = "/vi4/orders";
 
-// =============================================================
-// 🔥 SAFE DATE PARAM: backend menerima "YYYY-MM-DD" murni
-// =============================================================
 function sanitizeParams(params) {
   if (!params) return params;
 
   return {
     ...params,
-    start_date: params.start_date || "",
-    end_date: params.end_date || "",
+    start_date: params.start_date ?? null,
+    end_date: params.end_date ?? null,
   };
 }
 
-// =============================================================
-// GET ORDERS (pagination)
-// =============================================================
 export function getOrders(params) {
   return axios.get(`${BASE}/pagination`, {
     params: sanitizeParams(params),
   });
 }
 
-// =============================================================
-// GET DETAIL
-// =============================================================
 export function getOrderDetail(id) {
   return axios.get(`${BASE}/${id}`);
 }
 
-// =============================================================
-// EXPORT CSV
-// =============================================================
 export function exportCSV(params) {
   return axios
     .get(`${BASE}/export/csv`, {
@@ -53,9 +41,6 @@ export function exportCSV(params) {
     });
 }
 
-// =============================================================
-// EXPORT XLSX
-// =============================================================
 export function exportXLSX(params) {
   return axios
     .get(`${BASE}/export/xlsx`, {
@@ -77,9 +62,6 @@ export function exportXLSX(params) {
     });
 }
 
-// =============================================================
-// EXPORT PDF
-// =============================================================
 export async function exportPDF(params) {
   const res = await axios.get(`${BASE}/export/pdf`, {
     params: sanitizeParams(params),
@@ -97,5 +79,5 @@ export async function exportPDF(params) {
 }
 
 export async function resendTicket(orderId){
-
+  return axios.post(`${BASE}/${orderId}/resend-ticket`);
 } 
