@@ -1,0 +1,11 @@
+export const GLOBAL_ROLES = [
+  "SUPERADMIN",
+  "SYSTEM_ADMIN",
+  "CONTENT_WRITER",
+];
+
+export const CREATOR_ROLES = [
+  "PROMOTOR_OWNER",
+  "PROMOTOR_EVENT_ADMIN",
+  "SCAN_STAFF",
+];

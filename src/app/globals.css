@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* -------------------------------------------------------------
+   CSS Variables (Theme)
+------------------------------------------------------------- */
+:root {
+  /* Base colors - Light theme */
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 215 20% 95%;
+  --secondary-foreground: 222 47% 11%;
+
+  --muted: 215 20% 94%;
+  --muted-foreground: 215 16% 47%;
+
+  --accent: 215 20% 94%;
+  --accent-foreground: 222 47% 11%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 239 84% 67%;
+
+  --radius: 0.625rem;
+
+  /* Sidebar */
+  --sidebar-background: 222 47% 11%;
+  --sidebar-foreground: 215 20% 85%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 222 40% 18%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 222 35% 20%;
+  --sidebar-ring: 239 84% 67%;
+  --sidebar-muted: 215 16% 47%;
+
+  scroll-behavior: smooth;
+}
+
+/* Dark Mode */
+.dark {
+  --background: 222 47% 8%;
+  --foreground: 215 20% 95%;
+}
+
+/* -------------------------------------------------------------
+   Base
+------------------------------------------------------------- */
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* -------------------------------------------------------------
+   Components
+------------------------------------------------------------- */
+
+/* Stat Card */
+.stat-card {
+  border-radius: var(--radius);
+  background-color: hsl(var(--card));
+  padding: 1.5rem;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+/* -------------------------------------------------------------
+   Utilities
+------------------------------------------------------------- */
+
+/* Custom Scrollbar */
+.scrolly::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #fff;
+}
+
+.scrolly::-webkit-scrollbar-thumb {
+  background-color: #aab7cf;
+}
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #fff;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #aab7cf;
+}
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in .25s ease-out;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+}
