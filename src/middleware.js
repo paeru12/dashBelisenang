@@ -10,7 +10,7 @@ export function middleware(req) {
   // allow next internal files
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
+    pathname.startsWith("/") ||
     pathname.startsWith("/favicon")
   ) {
     return NextResponse.next();
