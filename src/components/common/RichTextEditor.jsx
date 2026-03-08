@@ -21,7 +21,7 @@ import {
 export default function RichTextEditorCore({
   value = "",
   onChange,
-  placeholder = "Tulis deskripsi event di sini...",
+  placeholder = "Tulis deskripsi di sini...",
 }) {
   const editor = useEditor({
     content: value,

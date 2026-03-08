@@ -153,7 +153,7 @@ export default function ScanStaffDashboard() {
 
                 <Button
                   onClick={() =>
-                    router.push(`/scan/${item.event_id}?gate=${item.assigned_gate}`)
+                    router.push(`/scan/${item.event_id}`)
                   }
                 >
                   Start Scan

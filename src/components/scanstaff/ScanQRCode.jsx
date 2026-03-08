@@ -124,7 +124,6 @@ export default function ScanQRCode({ assignmentId, eventId, gate }) {
         gate,
         device_id: "scanner-browser",
         scan_source: "web"
-
       });
 
       successAudio.current.play();

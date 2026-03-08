@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import RoleRenderer from "@/components/common/RoleRenderer";
 import PayoutApproval from "@/components/features/owner/Payout/PayoutApprovalManagement";
 import PayoutManagement from "@/components/features/owner/Payout/PayoutManagement";

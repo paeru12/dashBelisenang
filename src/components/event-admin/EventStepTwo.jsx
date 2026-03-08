@@ -26,7 +26,7 @@ import { getTaxRate, getAdminFee } from "@/lib/financeApi";
 import dynamic from "next/dynamic";
 
 const RichTextEditor = dynamic(
-  () => import("@/components/common/RichTextEditor.client"),
+  () => import("@/components/common/RichTextEditor"),
   { ssr: false }
 );
 const STATUS_OPTIONS = [

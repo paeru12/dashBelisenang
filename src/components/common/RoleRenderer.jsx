@@ -8,10 +8,6 @@ export default function RoleRenderer({ map }) {
   if (loading) return null;
   if (!user) return <div>Akses ditolak</div>;
 
-  // ===============================
-  // ROLE PRIORITY SYSTEM
-  // ===============================
-
   const priorityOrder = [
     "SUPERADMIN",
     "SYSTEM_ADMIN",
@@ -37,6 +33,5 @@ export default function RoleRenderer({ map }) {
 
   if (!Component)
     return <div>Role tidak memiliki akses halaman ini</div>;
-
   return Component;
 }

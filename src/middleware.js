@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
-
   const { pathname } = req.nextUrl;
 
-  const publicRoutes = ["/login", "/register", "/403"];
-
-  // allow next internal files
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon")
+    pathname.startsWith("/") ||
+    pathname === "/favicon.ico"
   ) {
     return NextResponse.next();
   }
 
-  // allow public pages
-  if (publicRoutes.includes(pathname)) {
+  const PUBLIC = ["/login", "/register", "/403"];
+
+  if (PUBLIC.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
@@ -23,9 +21,5 @@ export function middleware(req) {
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/orders/:path*",
-    "/events/:path*",
-  ],
+  matcher: ["/:path*"],
 };
