@@ -52,8 +52,9 @@ export default function Sidebars({
 
       <div className="flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-600 rounded-xl shadow-md">
-            <Ticket className="h-5 w-5 text-white text-center" />
+          <div className="p-2  rounded-xl shadow-md">
+            {/* <Ticket className="h-5 w-5 text-white text-center" /> */}
+            <img src="/logo.png" alt="" className="h-5 w-5" />
           </div>
           {!collapsed && (
             <span className="text-lg font-semibold text-slate-900 transition-all duration-200 ease-in-out">

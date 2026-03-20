@@ -8,9 +8,11 @@ import { updateEvents } from "@/lib/eventApi";
 import {
   createTicketType,
   updateTicketType,
+  createTicketBundle,
+  updateTicketBundle
 } from "@/lib/ticketTypesApi";
 import { successAlert, errorAlert } from "@/lib/alert";
-
+import { toDatetimeLocal } from "@/utils/date";
 export default function EventEditPopup({
   open,
   mode,
@@ -19,9 +21,7 @@ export default function EventEditPopup({
   onSuccess,
 }) {
   const [deletedTickets, setDeletedTickets] = useState([]);
-  const formatDate = (date) =>
-    date ? date.split("T")[0] : "";
-
+  const [bundles, setBundles] = useState([]);
   const [eventData, setEventData] = useState({
     flyer: null,
     flyerPreview: event?.image,
@@ -33,8 +33,8 @@ export default function EventEditPopup({
     province: event?.province || "",
     district: event?.district || "",
     mapUrl: event?.map || "",
-    startDate: event?.date_start || "",
-    endDate: event?.date_end || "",
+    startDate: event?.sale_start || "",
+    endDate: event?.sale_end || "",
     startTime: event?.time_start || "",
     endTime: event?.time_end || "",
     description: event?.deskripsi || "",
@@ -56,19 +56,30 @@ export default function EventEditPopup({
     event?.ticket_types?.map((t) => ({
       id: t.id,
       isNew: false,
+
+      group: t.ticket_group_id,
+
       name: t.name,
       description: t.deskripsi,
+
       price: t.price,
       qty: t.total_stock,
+
       maxOrder: t.max_per_order,
-      status: t.status || "draft",
+
+      ticket_usage_type: t.ticket_usage_type || "single_entry",
+
       adminFeeIncluded: t.admin_fee_included ?? true,
       taxIncluded: t.tax_included ?? false,
-      deliverDate: formatDate(t.deliver_ticket),
-      startDate: formatDate(t.date_start),
-      endDate: formatDate(t.date_end),
-      startTime: t.time_start || "",
-      endTime: t.time_end || "",
+
+      deliverDate: toDatetimeLocal(t.deliver_ticket),
+
+      saleStart: toDatetimeLocal(t.sale_start),
+      saleEnd: toDatetimeLocal(t.sale_end),
+
+      validStart: toDatetimeLocal(t.valid_start),
+      validEnd: toDatetimeLocal(t.valid_end),
+
     })) || []
   );
 
@@ -111,73 +122,149 @@ export default function EventEditPopup({
     }
   }
 
-  async function updateTicket() {
-    console.log("DELETED TICKETS:", deletedTickets);
+  async function updateTicket(payload) {
 
     try {
 
-      const newTickets = tickets.filter(t =>
-        String(t.id).startsWith("tmp-")
-      );
+      const { ticket_types, bundles } = payload
 
-      const existingTickets = tickets.filter(t =>
+      const newTickets = ticket_types.filter(t =>
+        String(t.id).startsWith("tmp-")
+      )
+
+      const existingTickets = ticket_types.filter(t =>
         !String(t.id).startsWith("tmp-")
-      );
+      )
+
+      /* =============================
+         CREATE NEW TICKET TYPES
+      ============================= */
 
       if (newTickets.length > 0) {
+
         const createPayload = newTickets.map(t => ({
+          ticket_group_id: t.group,
           name: t.name,
           deskripsi: t.description,
           price: Number(t.price),
           total_stock: Number(t.qty),
           max_per_order: Number(t.maxOrder),
-          status: t.status,
+          ticket_usage_type: t.ticket_usage_type,
           admin_fee_included: t.adminFeeIncluded,
           tax_included: t.taxIncluded,
           deliver_ticket: t.deliverDate,
-          date_start: t.startDate,
-          date_end: t.endDate,
-          time_start: t.startTime,
-          time_end: t.endTime,
-        }));
+          sale_start: t.saleStart,
+          sale_end: t.saleEnd,
+          valid_start: t.validStart || null,
+          valid_end: t.validEnd || null,
+          status: t.status
+        }))
 
-        await createTicketType(event.id, createPayload);
+        await createTicketType(event.id, createPayload)
+
       }
+
+      /* =============================
+         UPDATE EXISTING TICKETS
+      ============================= */
 
       for (const t of existingTickets) {
+
         const updatePayload = {
+          ticket_group_id: t.group,
           name: t.name,
           deskripsi: t.description,
           price: Number(t.price),
           total_stock: Number(t.qty),
           max_per_order: Number(t.maxOrder),
-          status: t.status,
+          ticket_usage_type: t.ticket_usage_type,
           admin_fee_included: t.adminFeeIncluded,
           tax_included: t.taxIncluded,
           deliver_ticket: t.deliverDate,
-          date_start: t.startDate,
-          date_end: t.endDate,
-          time_start: t.startTime,
-          time_end: t.endTime,
-        };
+          sale_start: t.saleStart,
+          sale_end: t.saleEnd,
+          valid_start: t.validStart || null,
+          valid_end: t.validEnd || null,
+          status: t.status
+        }
 
-        await updateTicketType(event.id, t.id, updatePayload);
+        await updateTicketType(event.id, t.id, updatePayload)
+
       }
 
-      await successAlert("Berhasil", "Ticket diperbarui");
-      onSuccess?.();
-      onClose();
+      /* =============================
+         HANDLE BUNDLES
+      ============================= */
+
+      const cleanBundle = (bundle) => ({
+        name: bundle.name,
+        description: bundle.description || null,
+        price: Number(bundle.price),
+        max_per_order: Number(bundle.maxOrder) || 10,
+        status: bundle.status || "draft",
+        items: (bundle.items || []).map(i => ({
+          ticket_type_id: i.ticket_type_id,
+          quantity: Number(i.quantity)
+        }))
+      });
+
+
+      // pisahkan
+      const newBundles = bundles.filter(b =>
+        String(b.id).startsWith("bundle-")
+      );
+
+      const existingBundles = bundles.filter(b =>
+        !String(b.id).startsWith("bundle-")
+      );
+
+      /* =============================
+         CREATE NEW (BULK)
+      ============================= */
+
+      if (newBundles.length > 0) {
+
+        const payloadBulk = newBundles.map(cleanBundle);
+
+        await createTicketBundle(event.id, payloadBulk);
+      }
+
+      /* =============================
+         UPDATE EXISTING
+      ============================= */
+
+      for (const bundle of existingBundles) {
+
+        const payload = cleanBundle(bundle);
+
+        await updateTicketBundle(event.id, bundle.id, payload);
+
+      }
+
+      await successAlert("Berhasil", "Ticket diperbarui")
+
+      onSuccess?.()
+
+      onClose()
+
     } catch (err) {
-      console.error(err.response);
-      errorAlert("Gagal", err.response?.data?.message || err.message);
+
+      console.error(err)
+
+      errorAlert(
+        "Gagal",
+        err.response?.data?.message || err.message
+      )
+
     }
+
   }
 
   return (
     <BaseModal
       open={open}
       onClose={onClose}
-      maxWidth="max-w-4xl"
+      maxWidth="max-w-6xl"
       title={mode === "event" ? "Edit Event" : "Edit Ticket"}
     >
       {mode === "event" && (
@@ -194,6 +281,7 @@ export default function EventEditPopup({
           eventId={event.id}
           tickets={tickets}
           setTickets={setTickets}
+          bundles={bundles}
           setDeletedTickets={setDeletedTickets}
           eventStartDate={event.date_start}
           eventEndDate={event.date_end}

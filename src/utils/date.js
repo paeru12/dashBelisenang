@@ -163,6 +163,16 @@ export function formatIsoIndo(dateInput) {
   return `${tgl}/${bln}/${thn} ${jam}:${mnt}`;
 }
 
+export function toDatetimeLocal(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 // ==========================================================
 // 🔥 3. Format Rupiah
 // ==========================================================

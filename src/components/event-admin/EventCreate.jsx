@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import EventStepOne from "./EventStepOne";
 import EventStepTwo from "./EventStepTwo";
 import { createEvents } from "@/lib/eventApi";
+import { createTicketBundle } from "@/lib/ticketTypesApi";
+
 import { successAlert, errorAlert } from "@/lib/alert";
 function scrollToTop() {
   let el = document.getElementById("step-wrapper");
@@ -20,6 +22,7 @@ function scrollToTop() {
 }
 export default function EventCreate({ onCancel }) {
   const [step, setStep] = useState(1);
+  const [bundles, setBundles] = useState([]);
   useEffect(() => {
     scrollToTop();
   }, [step]);
@@ -59,20 +62,28 @@ export default function EventCreate({ onCancel }) {
   const [tickets, setTickets] = useState([
     {
       id: Date.now().toString(),
-      isNew: true,
+      group: "",
       name: "",
       description: "",
+
       price: "",
       qty: "",
+
       maxOrder: "",
-      deliverDate: "",
-      startDate: "",
-      endDate: "",
-      startTime: "",
-      endTime: "",
+
+      status: "scheduled",
+
       adminFeeIncluded: true,
       taxIncluded: true,
-    },
+
+      deliverDate: "",
+
+      saleStart: "",
+      saleEnd: "",
+
+      validStart: "",
+      validEnd: "",
+    }
   ]);
 
 
@@ -80,10 +91,11 @@ export default function EventCreate({ onCancel }) {
 
   async function handleFinish() {
     try {
+
       const e = eventData.event;
+
       const formData = new FormData();
 
-      // EVENT
       formData.append("kategori_id", e.category);
       formData.append("province", e.province);
       formData.append("district", e.district);
@@ -102,7 +114,6 @@ export default function EventCreate({ onCancel }) {
       formData.append("keywords", e.keywords.join(","));
       formData.append("social_link", JSON.stringify(e.social_link));
 
-      // FILE (WAJIB FILE)
       if (e.flyer instanceof File) {
         formData.append("image", e.flyer);
       }
@@ -111,31 +122,45 @@ export default function EventCreate({ onCancel }) {
         formData.append("layout_venue", e.layout);
       }
 
-      // TICKETS
       const ticketPayload = tickets.map((t) => ({
+        ticket_group_id: t.group,
         name: t.name,
         deskripsi: t.description,
         price: Number(t.price),
         total_stock: Number(t.qty),
         max_per_order: Number(t.maxOrder),
-        deliver_ticket: t.deliverDate,
-        date_start: t.startDate,
-        date_end: t.endDate,
-        time_start: t.startTime,
-        time_end: t.endTime,
         admin_fee_included: t.adminFeeIncluded,
         tax_included: t.taxIncluded,
+        deliver_ticket: t.deliverDate,
+        sale_start: t.saleStart,
+        sale_end: t.saleEnd,
+        valid_start: t.validStart || null,
+        valid_end: t.validEnd || null,
+        ticket_usage_type: "single_entry",
+        status: t.status,
       }));
 
       formData.append("ticket_types", JSON.stringify(ticketPayload));
 
-      const datas = await createEvents(formData);
+      const res = await createEvents(formData);
+
+      const eventId = res.data.data.id;
+
+      await createTicketBundle(eventId, bundles);
+
       await successAlert("Berhasil", "Event berhasil dibuat");
+
       onCancel();
 
     } catch (err) {
-      console.log(err.response);
-      errorAlert("Gagal", err.response?.data?.message || err.message, err.response?.data?.errors || []);
+
+      console.log(err);
+
+      errorAlert(
+        "Gagal",
+        err.response?.data?.message || err.message
+      );
+
     }
   }
 
@@ -159,10 +184,13 @@ export default function EventCreate({ onCancel }) {
         <EventStepTwo
           tickets={tickets}
           setTickets={setTickets}
+          bundles={bundles}
+          setBundles={setBundles}
           activeTicketId={activeTicketId}
           setActiveTicketId={setActiveTicketId}
           onBackStep={() => setStep(1)}
           onFinish={handleFinish}
+          eventStartDate={eventData.event.startDate}
           eventEndDate={eventData.event.endDate}
         />
       )}
